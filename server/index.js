@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import connectDB from './config/db.js';
 import authRoutes from './routes/auth.route.js';
+import logRoutes from "./routes/log.route.js";
 
 dotenv.config();
 
@@ -19,6 +20,8 @@ app.get('/health', (_req, res) => {
 
 app.use('/auth', authRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/logs', logRoutes);
+
 
 app.listen(PORT, () => {
  connectDB();
