@@ -1,4 +1,4 @@
-import express from 'express';
+ import express from 'express';
 import { authenticateToken } from '../middlewares/auth.middleware.js';
 import { getAiCommitsSummary, getLogs, generatePR, generateWeekly, exportCopy, exportDownload, exportToNotion, exportToSlack } from '../controllers/ai.controller.js';
 
