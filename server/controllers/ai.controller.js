@@ -5,6 +5,47 @@ import { getRepoCommits } from '../services/githubData.service.js';
 
 const ALLOWED_LOG_TYPES = ['standup', 'pr', 'weekly'];
 
+const handleGenerateCommitsSummary = async (req, res, forcedType) => {
+    const { owner, repo } = req.params;
+    const summaryType = String(forcedType || req.query.type || 'standup').toLowerCase();
+
+    if (!owner || !repo) {
+        return res.status(400).json({ message: 'Both owner and repo are required' });
+    }
+
+    if (!ALLOWED_LOG_TYPES.includes(summaryType)) {
+        return res.status(400).json({
+            message: `Invalid type. Allowed values: ${ALLOWED_LOG_TYPES.join(', ')}`,
+        });
+    }
+
+    const userId = req.user.id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+    }
+
+    const token = user.accessToken;
+
+    if (!token) {
+        return res.status(400).json({ message: 'GitHub access token not found for user' });
+    }
+
+    const commits = await getRepoCommits(token, owner, repo);
+    const commitMessages = commits.map((commit) => commit?.message).filter(Boolean);
+    const summary = await generateCommitsSummary(commitMessages, summaryType);
+
+    const createdLog = await Log.create({
+        user: userId,
+        type: summaryType,
+        repoName: repo,
+        content: summary,
+    });
+
+    return res.status(200).json({ success: true, data: summary, logId: createdLog._id });
+};
+
 export const getLogs = async (req, res) => {
     try {
         const userId = req.user.id;
@@ -57,50 +98,7 @@ export const getLogs = async (req, res) => {
 
 export const getAiCommitsSummary = async (req, res) => {
     try {
-        const { owner, repo } = req.params;
-        const summaryType = String(req.query.type || 'standup').toLowerCase();
-
-        if (!owner || !repo) {
-            return res.status(400).json({ message: 'Both owner and repo are required' });
-        }
-
-        if (!ALLOWED_LOG_TYPES.includes(summaryType)) {
-            return res.status(400).json({
-                message: `Invalid type. Allowed values: ${ALLOWED_LOG_TYPES.join(', ')}`,
-            });
-        }
-
-        const userId = req.user.id; // Assuming user ID is available in the request object after authentication
-        const user = await User.findById(userId);
-
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        const token = user.accessToken;
-
-        if (!token) {
-            return res.status(400).json({ message: 'GitHub access token not found for user' });
-        }
-
-        // Fetch commits from GitHub
-        const commits = await getRepoCommits(token, owner, repo);
-        const commitMessages = commits
-            .map((commit) => commit?.message)
-            .filter(Boolean);
-        // Generate summary using AI
-        const summary = await generateCommitsSummary(commitMessages, summaryType);
-
-        // Log the AI-generated summary
-
-        const createdLog = await Log.create({
-            user: userId,
-            type: summaryType,
-            repoName: repo,
-            content : summary,
-        });
-
-        return res.status(200).json({ success: true, data: summary, logId: createdLog._id });
+        return await handleGenerateCommitsSummary(req, res);
 
     } catch (error) {
         console.error("Error in getAiCommitsSummary:", error);
@@ -110,13 +108,21 @@ export const getAiCommitsSummary = async (req, res) => {
 
 // Convenience endpoints for specific types
 export const generatePR = async (req, res) => {
-        req.query.type = 'pr';
-        return getAiCommitsSummary(req, res);
+        try {
+            return await handleGenerateCommitsSummary(req, res, 'pr');
+        } catch (error) {
+            console.error("Error in generatePR:", error);
+            return res.status(500).json({ message: "Failed to get AI commits summary" });
+        }
 };
 
 export const generateWeekly = async (req, res) => {
-        req.query.type = 'weekly';
-        return getAiCommitsSummary(req, res);
+        try {
+            return await handleGenerateCommitsSummary(req, res, 'weekly');
+        } catch (error) {
+            console.error("Error in generateWeekly:", error);
+            return res.status(500).json({ message: "Failed to get AI commits summary" });
+        }
 };
 
 // Export helpers
