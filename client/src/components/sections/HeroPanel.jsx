@@ -36,9 +36,7 @@ function HeroPanel({ stats, summaryLabel, summaryTitle, summaryDescription, focu
           <div className="flex flex-wrap gap-3">
             <button
               type="button"
-              onClick={onStartSummary}
-              disabled={allRepos.length === 0}
-              className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-950 transition hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-950 transition hover:scale-[1.01]"
             >
               Start a summary
             </button>
