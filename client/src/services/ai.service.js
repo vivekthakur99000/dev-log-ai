@@ -25,10 +25,22 @@ const exportDownload = async (id) => {
   return res.data
 }
 
+const exportToNotion = async (id) => {
+  const res = await api.post('/export/notion', { id })
+  return res.data
+}
+
+const exportToSlack = async (id, channelId) => {
+  const res = await api.post('/export/slack', { id, channelId })
+  return res.data
+}
+
 export default {
   generateStandup,
   generatePR,
   generateWeekly,
   exportCopy,
   exportDownload,
+  exportToNotion,
+  exportToSlack,
 }

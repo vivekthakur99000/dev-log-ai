@@ -2,10 +2,13 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../components/layout/Header.jsx'
 import logsService from '../services/logs.service'
+import LogDetailModal from '../components/modals/LogDetailModal.jsx'
 
 function Logs() {
   const navigate = useNavigate()
   const [logs, setLogs] = useState([])
+  const [selectedLog, setSelectedLog] = useState(null)
+  const [modalOpen, setModalOpen] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
@@ -98,14 +101,32 @@ function Logs() {
                       <p className="text-slate-300 text-sm">{log.content}</p>
                       <p className="text-xs text-slate-500 mt-3">{log.time}</p>
                     </div>
-                    <button className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-200 hover:border-cyan-400/40 hover:bg-cyan-400/10 hover:text-white transition">
-                      View
-                    </button>
+                    <div className="flex flex-col items-end gap-2">
+                      <button
+                        onClick={() => { setSelectedLog(log); setModalOpen(true) }}
+                        className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-200 hover:border-cyan-400/40 hover:bg-cyan-400/10 hover:text-white transition"
+                      >
+                        View
+                      </button>
+                      <button
+                        onClick={async () => {
+                          // quick copy shortcut
+                          try {
+                            await navigator.clipboard.writeText(log.content)
+                            alert('Copied')
+                          } catch (err) {
+                            alert('Copy failed')
+                          }
+                        }}
+                        className="rounded-lg border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-200 hover:border-cyan-400/40 hover:bg-cyan-400/10"
+                      >Copy</button>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
           )}
+          <LogDetailModal isOpen={modalOpen} onClose={() => setModalOpen(false)} log={selectedLog} />
         </main>
       </div>
     </div>
