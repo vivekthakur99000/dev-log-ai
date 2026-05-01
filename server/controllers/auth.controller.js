@@ -64,15 +64,19 @@ export const githubCallback = async (req, res) => {
 			username: user.username,
 		});
 
-		return res.status(200).json({
-			token,
-			user: {
-				id: user._id,
-				githubId: user.githubId,
-				username: user.username,
-				avatarUrl: user.avatarUrl,
-			},
-		});
+		// Redirect to frontend with token in fragment to avoid exposing it in server logs
+		const frontend = process.env.FRONTEND_URL || 'http://localhost:5173'
+		const safeUser = {
+			id: user._id,
+			githubId: user.githubId,
+			username: user.username,
+			avatarUrl: user.avatarUrl,
+		}
+
+		const fragment = `token=${encodeURIComponent(token)}&user=${encodeURIComponent(JSON.stringify(safeUser))}`
+		const redirectUrl = `${frontend.replace(/\/$/, '')}/auth/callback#${fragment}`
+
+		return res.redirect(302, redirectUrl)
 	} catch (error) {
 		return res.status(500).json({ message: error.message || 'GitHub authentication failed' });
 	}

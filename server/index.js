@@ -20,7 +20,7 @@ app.get('/health', (_req, res) => {
 
 app.use('/auth', authRoutes);
 app.use('/api/auth', authRoutes);
-app.use('/api/logs', logRoutes);
+app.use('/api', logRoutes);
 
 
 app.listen(PORT, () => {

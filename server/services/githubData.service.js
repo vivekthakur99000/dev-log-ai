@@ -1,27 +1,44 @@
 export const getUserRepos = async (accessToken) => {
   try {
-    const response = await fetch(
-      "https://api.github.com/user/repos?per_page=20",
-      {
-        headers: {
-          Accept: "application/vnd.github+json",
-          Authorization: `Bearer ${accessToken}`,
-          "User-Agent": "dev-log-ai",
-        },
-      },
-    );
+    const headers = {
+      Accept: "application/vnd.github+json",
+      Authorization: `Bearer ${accessToken}`,
+      "User-Agent": "dev-log-ai",
+    };
 
-    if (!response.ok) {
-      throw new Error(`GitHub API error: ${response.status}`);
+    const repos = [];
+    let page = 1;
+    const perPage = 100;
+
+    while (true) {
+      const response = await fetch(
+        `https://api.github.com/user/repos?per_page=${perPage}&page=${page}&sort=updated`,
+        { headers },
+      );
+
+      if (!response.ok) {
+        throw new Error(`GitHub API error: ${response.status}`);
+      }
+
+      const pageRepos = await response.json();
+      repos.push(...pageRepos);
+
+      if (!Array.isArray(pageRepos) || pageRepos.length < perPage) {
+        break;
+      }
+
+      page += 1;
     }
 
-    const repos = await response.json();
     return repos.map((repo) => ({
       id: repo.id,
+      name: repo.name,
       fullName: repo.full_name,
       private: repo.private,
       htmlUrl: repo.html_url,
       description: repo.description,
+      language: repo.language,
+      stargazers_count: repo.stargazers_count,
       fork: repo.fork,
     }));
 

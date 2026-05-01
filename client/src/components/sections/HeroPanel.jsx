@@ -1,6 +1,6 @@
-import StatCard from '../ui/StatCard.jsx'
+import StatCard from '../../features/StatCard.jsx'
 
-function HeroPanel({ stats, summaryLabel, summaryTitle, summaryDescription, focusTitle, focusText, toneTitle, toneText }) {
+function HeroPanel({ stats, summaryLabel, summaryTitle, summaryDescription, focusTitle, focusText, toneTitle, toneText, onStartSummary, allRepos }) {
   return (
     <section className="relative overflow-hidden rounded-4xl border border-white/10 bg-slate-950/70 p-6 shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-8 lg:p-10">
       <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full bg-cyan-400/20 blur-3xl" />
@@ -36,7 +36,9 @@ function HeroPanel({ stats, summaryLabel, summaryTitle, summaryDescription, focu
           <div className="flex flex-wrap gap-3">
             <button
               type="button"
-              className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-950 transition hover:scale-[1.01]"
+              onClick={onStartSummary}
+              disabled={allRepos.length === 0}
+              className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-950 transition hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Start a summary
             </button>
