@@ -51,7 +51,6 @@ export const exchangeCodeForToken = async (code) => {
 			client_id: clientId,
 			client_secret: clientSecret,
 			code,
-			redirect_uri: process.env.GITHUB_REDIRECT_URI,
 		}),
 	});
 
