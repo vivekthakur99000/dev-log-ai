@@ -52,7 +52,7 @@ export const githubCallback = async (req, res) => {
 				accessToken,
 			},
 			{
-				new: true,
+				returnDocument: 'after',
 				upsert: true,
 				setDefaultsOnInsert: true,
 			}
