@@ -21,6 +21,8 @@ It connects to GitHub with OAuth, fetches repository and commit data, generates 
 - Modern React frontend with Redux state management
 - Deploy-ready split architecture (Vercel + Render)
 
+- Live frontend: https://dev-log-ai-wheat.vercel.app/
+
 ## Architecture
 
 - Frontend: React + Vite + Redux Toolkit + Axios + Tailwind CSS
@@ -204,6 +206,8 @@ Health check:
 3. Output directory: dist
 4. Add VITE_API_BASE_URL pointing to backend /api.
 5. Deploy and verify login flow.
+ 
+Live frontend URL for this project: https://dev-log-ai-wheat.vercel.app/
 
 ## Troubleshooting
 
